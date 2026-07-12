@@ -1,0 +1,6 @@
+{
+  "name": "CarouselPro",
+  "description": "Professional-grade carousel design canvas with modern dark-editorial aesthetics, precise grid layout, and seamless slide editing for content creators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
