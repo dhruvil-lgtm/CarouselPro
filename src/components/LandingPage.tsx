@@ -378,7 +378,6 @@ export default function LandingPage({ onStartCreating, onExploreTemplates }: Lan
           <div className="flex gap-6 text-neutral-500">
             <span className="hover:text-amber-400 transition-colors cursor-pointer">PRIVACY</span>
             <span className="hover:text-amber-400 transition-colors cursor-pointer">TERMS</span>
-            <span className="hover:text-amber-400 transition-colors cursor-pointer">CREDITS</span>
           </div>
         </div>
       </footer>

@@ -1,0 +1,6 @@
+# Allow all crawlers for CarouselPro
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://carouselpro.ai.studio/sitemap.xml

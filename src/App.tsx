@@ -283,6 +283,25 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Floating "Made by Dhruvil Shah" badge - bottom right corner */}
+      <div className="fixed bottom-4 right-4 z-30">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.6 }}
+          className="group"
+        >
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#121212]/80 backdrop-blur-md border border-neutral-800/60 shadow-lg shadow-amber-500/5 hover:border-amber-500/20 hover:shadow-amber-500/10 transition-all duration-300 cursor-default">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-600 flex items-center justify-center text-[8px] text-black font-bold">
+              D
+            </div>
+            <span className="text-[10px] font-mono text-neutral-500 group-hover:text-neutral-300 transition-colors">
+              Made by <span className="font-bold text-amber-400">Dhruvil Shah</span>
+            </span>
+          </div>
+        </motion.div>
+      </div>
+
     </div>
   );
 }
