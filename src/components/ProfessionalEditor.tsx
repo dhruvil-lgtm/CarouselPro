@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Sparkles, 
@@ -58,6 +58,77 @@ export default function ProfessionalEditor({
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<'canvas' | 'tools' | 'properties'>('canvas');
+  const [editingElementId, setEditingElementId] = useState<string | null>(null);
+
+  // Drag & drop state (refs for performance — avoids re-renders during drag)
+  const dragState = useRef({
+    isDragging: false,
+    justDragged: false, // prevents click event from firing after a drag
+    elementId: null as string | null,
+    startMouseX: 0,
+    startMouseY: 0,
+    startElX: 0,
+    startElY: 0,
+    containerWidth: 380,
+    containerHeight: 475,
+  });
+  const slideContainerRef = useRef<HTMLDivElement>(null);
+  const updateActiveElementRef = useRef(updateActiveElement);
+  // Keep the ref current after each render
+  useEffect(() => {
+    updateActiveElementRef.current = updateActiveElement;
+  });
+
+  // Window-level drag event listeners
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragState.current.isDragging || !dragState.current.elementId) return;
+      e.preventDefault();
+      const dx = e.clientX - dragState.current.startMouseX;
+      const dy = e.clientY - dragState.current.startMouseY;
+      const newX = Math.max(0, Math.min(100, Math.round(dragState.current.startElX + (dx / dragState.current.containerWidth) * 100)));
+      const newY = Math.max(0, Math.min(100, Math.round(dragState.current.startElY + (dy / dragState.current.containerHeight) * 100)));
+      updateActiveElementRef.current(dragState.current.elementId, { x: newX, y: newY });
+    };
+
+    const handleMouseUp = () => {
+      if (dragState.current.isDragging) {
+        dragState.current.justDragged = true;
+      }
+      dragState.current.isDragging = false;
+      dragState.current.elementId = null;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!dragState.current.isDragging || !dragState.current.elementId) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - dragState.current.startMouseX;
+      const dy = touch.clientY - dragState.current.startMouseY;
+      const newX = Math.max(0, Math.min(100, Math.round(dragState.current.startElX + (dx / dragState.current.containerWidth) * 100)));
+      const newY = Math.max(0, Math.min(100, Math.round(dragState.current.startElY + (dy / dragState.current.containerHeight) * 100)));
+      updateActiveElementRef.current(dragState.current.elementId, { x: newX, y: newY });
+    };
+
+    const handleTouchEnd = () => {
+      if (dragState.current.isDragging) {
+        dragState.current.justDragged = true;
+      }
+      dragState.current.isDragging = false;
+      dragState.current.elementId = null;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
 
   const activeSlide = slides[activeSlideIndex] || slides[0];
 
@@ -583,6 +654,7 @@ export default function ProfessionalEditor({
 
             {/* Core Slide Container (Aspect Ratio 4/5 - Instagram Portrait style) */}
             <div 
+              ref={slideContainerRef}
               className="relative overflow-hidden shadow-2xl transition-all duration-300 origin-center bg-black"
               style={{
                 width: '380px',
@@ -679,22 +751,101 @@ export default function ProfessionalEditor({
                 {/* Draggable/Interactive Custom elements added */}
                 {activeSlide.elements.map((el) => {
                   const isSelected = selectedElementId === el.id;
+                  const isEditing = editingElementId === el.id;
+                  const isCurrentlyDragging = dragState.current.isDragging && dragState.current.elementId === el.id;
+
+                  // Start drag on mousedown
+                  const handleDragStart = (clientX: number, clientY: number) => {
+                    if (isEditing) return; // don't drag while editing
+                    dragState.current.justDragged = false; // reset flag on new drag
+                    const rect = slideContainerRef.current?.getBoundingClientRect();
+                    if (rect) {
+                      dragState.current.containerWidth = rect.width;
+                      dragState.current.containerHeight = rect.height;
+                    }
+                    dragState.current.isDragging = true;
+                    dragState.current.elementId = el.id;
+                    dragState.current.startMouseX = clientX;
+                    dragState.current.startMouseY = clientY;
+                    dragState.current.startElX = el.x;
+                    dragState.current.startElY = el.y;
+                  };
+
                   return (
                     <div
                       key={el.id}
-                      onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); setSelectedCoreType(null); }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        handleDragStart(e.clientX, e.clientY);
+                      }}
+                      onTouchStart={(e) => {
+                        e.stopPropagation();
+                        const touch = e.touches[0];
+                        handleDragStart(touch.clientX, touch.clientY);
+                      }}
+                      onClick={(e) => { 
+                        e.stopPropagation();
+                        // Skip click events that immediately follow a drag
+                        if (dragState.current.justDragged) {
+                          dragState.current.justDragged = false;
+                          return;
+                        }
+                        // If already selected and it's a text element, enter edit mode
+                        if (selectedElementId === el.id && el.type === 'text') {
+                          setEditingElementId(el.id);
+                        } else {
+                          setSelectedElementId(el.id); 
+                          setSelectedCoreType(null);
+                          setEditingElementId(null);
+                        }
+                      }}
+                      onDoubleClick={(e) => {
+                        if (el.type === 'text') {
+                          e.stopPropagation();
+                          setEditingElementId(el.id);
+                          setSelectedElementId(el.id);
+                        }
+                      }}
                       style={{
                         position: 'absolute',
                         left: `${el.x}%`,
                         top: `${el.y}%`,
                         opacity: el.opacity !== undefined ? el.opacity : 1,
-                        filter: el.blur ? `blur(${el.blur}px)` : 'none'
+                        filter: el.blur ? `blur(${el.blur}px)` : 'none',
+                        cursor: isEditing ? 'text' : isCurrentlyDragging ? 'grabbing' : 'grab',
+                        touchAction: isEditing ? 'auto' : 'none',
                       }}
-                      className={`rounded p-1 transition-all cursor-pointer z-30 select-none ${
-                        isSelected ? 'ring-1 ring-amber-400 bg-neutral-900/30' : 'hover:bg-neutral-900/10'
-                      }`}
+                      className={`rounded p-1 transition-colors z-30 select-none ${
+                        isSelected && !isEditing ? 'ring-1 ring-amber-400 bg-neutral-900/30' : 'hover:bg-neutral-900/10'
+                      } ${isCurrentlyDragging ? 'shadow-lg shadow-amber-500/10 scale-105' : ''}`}
                     >
-                      {el.type === 'text' ? (
+                      {el.type === 'text' && isEditing ? (
+                        <span
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) => {
+                            updateActiveElement(el.id, { content: e.currentTarget.textContent || '' });
+                            setEditingElementId(null);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              e.currentTarget.blur();
+                            }
+                            if (e.key === 'Escape') {
+                              e.currentTarget.blur();
+                            }
+                          }}
+                          style={{ 
+                            fontSize: `${el.fontSize || 14}px`, 
+                            color: el.color || '#FFFFFF',
+                            fontWeight: el.fontWeight || 'normal',
+                            outline: 'none',
+                          }}
+                          className="font-mono block whitespace-nowrap ring-1 ring-amber-400 rounded px-1 bg-neutral-900/40 min-w-[20px]"
+                          dangerouslySetInnerHTML={{ __html: el.content }}
+                        />
+                      ) : el.type === 'text' ? (
                         <span 
                           style={{ 
                             fontSize: `${el.fontSize || 14}px`, 
@@ -706,11 +857,11 @@ export default function ProfessionalEditor({
                           {el.content}
                         </span>
                       ) : (
-                        <div style={{ width: `${el.fontSize || 100}px` }}>
+                        <div style={{ width: `${el.fontSize || 100}px` }} className="pointer-events-none">
                           <img 
                             src={el.content} 
                             alt="Sticker asset" 
-                            className="w-full object-contain pointer-events-none" 
+                            className="w-full object-contain" 
                             referrerPolicy="no-referrer"
                           />
                         </div>

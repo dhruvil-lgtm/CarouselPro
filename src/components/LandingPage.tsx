@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -14,7 +14,12 @@ import {
   Zap, 
   CheckCircle,
   HelpCircle,
-  Star
+  Star,
+  Plus,
+  Minus,
+  Palette,
+  Wand2,
+  Share2
 } from 'lucide-react';
 import { DEFAULT_CAROUSEL_SLIDES } from '../data';
 
@@ -25,6 +30,7 @@ interface LandingPageProps {
 
 export default function LandingPage({ onStartCreating, onExploreTemplates }: LandingPageProps) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const prevSlide = () => {
     setActiveSlide((prev) => (prev === 0 ? DEFAULT_CAROUSEL_SLIDES.length - 1 : prev - 1));
@@ -341,6 +347,178 @@ export default function LandingPage({ onStartCreating, onExploreTemplates }: Lan
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 px-4 max-w-6xl mx-auto">
+        <div className="text-center max-w-xl mx-auto mb-16">
+          <span className="text-amber-400 font-mono text-xs tracking-wider uppercase mb-3 block">
+            Three Simple Steps
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+            How CarouselPro Works
+          </h2>
+          <p className="text-neutral-400 text-sm sm:text-base">
+            Create stunning social media carousels in minutes — from blank canvas to published post.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          {/* Connector line between steps */}
+          <div className="hidden md:block absolute top-1/4 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent -translate-y-1/2" />
+
+          {/* Step 1 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="glass-panel p-8 rounded-xl border border-neutral-900 relative group hover:border-amber-500/20 transition-all duration-300 text-center"
+          >
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto mb-5 group-hover:scale-110 transition-transform">
+              <Palette className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-mono text-amber-400/80 uppercase tracking-widest mb-2 block">Step 01</span>
+            <h3 className="text-lg font-bold text-white mb-2">Choose Your Canvas</h3>
+            <p className="text-neutral-400 text-sm leading-relaxed">
+              Pick from premium templates or start from scratch. Select your aspect ratio — 4:5 for Instagram, 1:1 for LinkedIn, or 9:16 for Stories.
+            </p>
+          </motion.div>
+
+          {/* Step 2 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="glass-panel p-8 rounded-xl border border-neutral-900 relative group hover:border-amber-500/20 transition-all duration-300 text-center"
+          >
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto mb-5 group-hover:scale-110 transition-transform">
+              <Wand2 className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-mono text-amber-400/80 uppercase tracking-widest mb-2 block">Step 02</span>
+            <h3 className="text-lg font-bold text-white mb-2">Design & Customize</h3>
+            <p className="text-neutral-400 text-sm leading-relaxed">
+              Layer stunning typography, add stickers, set background images, and use AI-powered background removal. Drag, position, and style every element.
+            </p>
+          </motion.div>
+
+          {/* Step 3 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="glass-panel p-8 rounded-xl border border-neutral-900 relative group hover:border-amber-500/20 transition-all duration-300 text-center"
+          >
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto mb-5 group-hover:scale-110 transition-transform">
+              <Share2 className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-mono text-amber-400/80 uppercase tracking-widest mb-2 block">Step 03</span>
+            <h3 className="text-lg font-bold text-white mb-2">Export & Share</h3>
+            <p className="text-neutral-400 text-sm leading-relaxed">
+              Preview your carousel in realistic LinkedIn, Instagram, Twitter, and TikTok mockups. Export as PNG, PDF, or SVG — ready to post instantly.
+            </p>
+          </motion.div>
+        </div>
+
+        <div className="text-center mt-10">
+          <button
+            onClick={onStartCreating}
+            className="px-6 py-3 rounded-lg bg-amber-500 text-black hover:bg-amber-400 font-semibold text-sm transition-all inline-flex items-center gap-2 cursor-pointer"
+          >
+            Start Your First Carousel <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 max-w-4xl mx-auto border-t border-neutral-900/60">
+        <div className="text-center max-w-xl mx-auto mb-12">
+          <span className="text-amber-400 font-mono text-xs tracking-wider uppercase mb-3 block">
+            Frequently Asked Questions
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+            Everything You Need to Know
+          </h2>
+          <p className="text-neutral-400 text-sm sm:text-base">
+            Quick answers to common questions about CarouselPro, templates, pricing, and exports.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {[
+            {
+              q: 'What is CarouselPro and how does it work?',
+              a: 'CarouselPro is a professional-grade carousel design studio for social media. You choose a template or start from scratch, customize slides with text, images, stickers, and AI background removal, then export your carousel as PNG, PDF, or SVG packages optimized for Instagram, LinkedIn, Twitter, and TikTok.'
+            },
+            {
+              q: 'Is CarouselPro free to use?',
+              a: 'Yes! CarouselPro offers a generous free tier that lets you create up to 3 slides per carousel, access default text layers, and standard downloads. For unlimited slides, AI background isolation, and high-res vector exports, upgrade to Pro Studio at just ₹499/month.'
+            },
+            {
+              q: 'What social media platforms does CarouselPro support?',
+              a: 'CarouselPro supports all major social platforms including Instagram (feed and stories), LinkedIn, Twitter/X, and TikTok. You can preview your carousel in realistic app mockups before exporting to ensure the perfect fit for each platform.'
+            },
+            {
+              q: 'Can I use my own images and branding?',
+              a: 'Absolutely! You can paste any image URL as a background, upload your own stickers, customize typography with 8+ premium font presets, and adjust colors to match your brand identity. The editor gives you full creative control.'
+            },
+            {
+              q: 'What export formats are available?',
+              a: 'CarouselPro supports three export formats: PNG packs for social media slices, PDF books for LinkedIn documents, and SVG vectors for infinite scalability. You can also choose between 4:5 portrait, 1:1 square, and 9:16 story aspect ratios.'
+            },
+            {
+              q: 'How does the AI background removal work?',
+              a: 'Our AI-powered background remover uses high-fidelity semantic networks to isolate subjects like products, people, or custom visuals from their backdrops. With one click, you get a transparent layer that can be placed over any background for a clean, professional look.'
+            }
+          ].map((faq, index) => (
+            <div
+              key={index}
+              className="glass-panel rounded-xl border border-neutral-900 overflow-hidden transition-all duration-300"
+            >
+              <button
+                onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                className="w-full p-5 flex items-center justify-between text-left cursor-pointer group"
+                aria-expanded={openFaq === index}
+              >
+                <span className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors pr-4">
+                  {faq.q}
+                </span>
+                <div className={`w-6 h-6 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0 transition-all duration-300 ${
+                  openFaq === index ? 'bg-amber-500/10 border-amber-500/30 rotate-180' : ''
+                }`}>
+                  {openFaq === index ? (
+                    <Minus className="w-3.5 h-3.5 text-amber-400" />
+                  ) : (
+                    <Plus className="w-3.5 h-3.5 text-neutral-400" />
+                  )}
+                </div>
+              </button>
+              <AnimatePresence initial={false}>
+                {openFaq === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-5 pb-5 text-sm text-neutral-400 leading-relaxed border-t border-neutral-900 pt-4">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <p className="text-xs text-neutral-500 font-mono">
+            Still have questions? <span className="text-amber-400 cursor-pointer hover:underline">Contact our support team</span>
+          </p>
         </div>
       </section>
 

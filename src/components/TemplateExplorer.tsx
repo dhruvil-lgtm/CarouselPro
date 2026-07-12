@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Search, Eye, Filter, Sparkles, BookOpen, Clock, Layers } from 'lucide-react';
+import { Search, Eye, Filter, Sparkles, BookOpen, Clock, Layers, Hourglass, Palette, Camera, Quote, Globe } from 'lucide-react';
 import { TEMPLATES } from '../data';
 import { CarouselTemplate } from '../types';
 
@@ -150,6 +150,100 @@ export default function TemplateExplorer({ onSelectTemplate }: TemplateExplorerP
           </button>
         </div>
       )}
+
+      {/* Coming Soon Templates Section */}
+      <section className="mt-20">
+        <div className="text-center sm:text-left mb-8">
+          <div className="flex items-center justify-center sm:justify-start gap-2 text-amber-400 font-mono text-xs tracking-wider uppercase mb-2">
+            <Hourglass className="w-4 h-4" /> Coming Soon
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-2">
+            More Templates on the Way
+          </h2>
+          <p className="text-neutral-400 max-w-xl text-sm leading-relaxed">
+            We're crafting fresh new designs to expand your creative toolkit. Stay tuned for these upcoming releases.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              name: 'Neon Nights',
+              desc: 'Cyberpunk-inspired glow layouts with vibrant gradients and futuristic typography.',
+              icon: Camera,
+              eta: 'Coming in 2 weeks'
+            },
+            {
+              name: 'Minimal Luxe',
+              desc: 'Clean, high-end editorial designs with subtle textures and refined spacing.',
+              icon: Palette,
+              eta: 'Coming in 3 weeks'
+            },
+            {
+              name: 'Bold Statements',
+              desc: 'Large typography-driven layouts built for maximum impact and engagement.',
+              icon: Quote,
+              eta: 'Coming in 1 month'
+            },
+            {
+              name: 'World Travel',
+              desc: 'Wanderlust-themed carousels with map elements, stamps, and destination styles.',
+              icon: Globe,
+              eta: 'Coming soon'
+            }
+          ].map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="relative glass-panel rounded-xl overflow-hidden border border-dashed border-neutral-800/80 hover:border-amber-500/20 transition-all duration-300 group cursor-default"
+              >
+                {/* Top badge */}
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-mono uppercase tracking-wider">
+                    COMING SOON
+                  </span>
+                </div>
+
+                {/* Illustration area */}
+                <div className="aspect-[4/3] bg-neutral-950/80 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent" />
+                  <div className="relative z-10 flex flex-col items-center gap-2">
+                    <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-amber-400/60 group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-wider">
+                      {item.eta}
+                    </span>
+                  </div>
+                  
+                  {/* Subtle grid pattern overlay */}
+                  <div className="absolute inset-0 canvas-grid-light opacity-20" />
+                </div>
+
+                {/* Info */}
+                <div className="p-4 bg-neutral-950/20">
+                  <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors mb-1">
+                    {item.name}
+                  </h3>
+                  <p className="text-[11px] text-neutral-500 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+
+                {/* Bottom notification bar */}
+                <div className="px-4 py-2 bg-neutral-950/40 border-t border-neutral-900/60 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-wider">In development — stay tuned</span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Pro Badge Feature CTA */}
       <section className="mt-20 glass-panel rounded-2xl border border-neutral-900 p-8 flex flex-col md:flex-row justify-between items-center gap-6">
