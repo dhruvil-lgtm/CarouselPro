@@ -306,7 +306,7 @@ export default function App() {
                           <div>
                             <h4 className="text-sm font-bold text-neutral-300">Basic Tier</h4>
                             <p className="text-neutral-500 text-[10px] uppercase font-mono mt-0.5">Free forever</p>
-                            <div className="my-3 text-2xl font-extrabold text-white">$0</div>
+                            <div className="my-3 text-2xl font-extrabold text-white">Free</div>
                             <ul className="space-y-1.5 text-[11px] text-neutral-400">
                               <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-amber-500 shrink-0" /> Edit up to 3 slides</li>
                               <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-amber-500 shrink-0" /> Default text layers</li>
@@ -332,7 +332,7 @@ export default function App() {
                             </h4>
                             <p className="text-neutral-500 text-[10px] uppercase font-mono mt-0.5">Professional grade</p>
                             <div className="my-3 text-2xl font-extrabold text-white">
-                              $12<span className="text-xs font-normal text-neutral-500">/mo</span>
+                              ₹499<span className="text-xs font-normal text-neutral-500">/mo</span>
                             </div>
                             <ul className="space-y-1.5 text-[11px] text-neutral-300">
                               <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Infinite canvas slides</li>
@@ -376,7 +376,7 @@ export default function App() {
                       <h4 className="text-xs font-bold text-white">Pro Studio - Monthly Subscription</h4>
                       <p className="text-[10px] text-neutral-500 mt-0.5">Sandbox Mode - No real charge</p>
                     </div>
-                    <span className="text-amber-400 font-bold text-sm font-mono">$12.00/mo</span>
+                    <span className="text-amber-400 font-bold text-sm font-mono">₹499/mo</span>
                   </div>
 
                   {paymentError && (
@@ -477,7 +477,7 @@ export default function App() {
                       }}
                       className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold rounded uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                     >
-                      <Lock className="w-3.5 h-3.5" /> Authorize & Pay $12.00
+                      <Lock className="w-3.5 h-3.5" /> Authorize & Pay ₹499
                     </button>
                     <div className="flex items-center justify-center gap-1 text-[9px] text-neutral-500 font-mono mt-3 uppercase">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -521,7 +521,7 @@ export default function App() {
                     <div className="flex justify-between"><span className="text-neutral-500">Tier:</span> <span className="text-amber-400">Pro Studio Lifetime Sandbox</span></div>
                     <div className="flex justify-between"><span className="text-neutral-500">Method:</span> <span className="text-neutral-300">Visa ending in {cardNumber.slice(-4) || '4242'}</span></div>
                     <div className="flex justify-between"><span className="text-neutral-500">Reference:</span> <span className="text-neutral-400">TXN-{Math.floor(100000 + Math.random() * 900000)}</span></div>
-                    <div className="flex justify-between border-t border-neutral-900 pt-1 mt-1 font-bold text-xs"><span className="text-white">Amount Paid:</span> <span className="text-white">$12.00 (Simulated)</span></div>
+                    <div className="flex justify-between border-t border-neutral-900 pt-1 mt-1 font-bold text-xs"><span className="text-white">Amount Paid:</span> <span className="text-white">₹499 (Simulated)</span></div>
                   </div>
 
                   <button
