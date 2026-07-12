@@ -73,8 +73,33 @@ export default function ProfessionalEditor({
     containerHeight: 475,
   });
   const slideContainerRef = useRef<HTMLDivElement>(null);
+
+  const activeSlide = slides[activeSlideIndex] || slides[0];
+
+  // Handler to update fields of the active slide
+  const updateActiveSlide = (updatedFields: Partial<CarouselSlide>) => {
+    const updated = slides.map((slide, idx) => {
+      if (idx === activeSlideIndex) {
+        return { ...slide, ...updatedFields };
+      }
+      return slide;
+    });
+    onUpdateSlides(updated);
+  };
+
+  // Handler to update a specific element inside the active slide
+  const updateActiveElement = (elementId: string, updatedFields: Partial<CarouselElement>) => {
+    const updatedElements = activeSlide.elements.map((el) => {
+      if (el.id === elementId) {
+        return { ...el, ...updatedFields };
+      }
+      return el;
+    });
+    updateActiveSlide({ elements: updatedElements });
+  };
+
+  // Ref pointing to the latest updateActiveElement (avoid stale closure in event listeners)
   const updateActiveElementRef = useRef(updateActiveElement);
-  // Keep the ref current after each render
   useEffect(() => {
     updateActiveElementRef.current = updateActiveElement;
   });
@@ -129,30 +154,6 @@ export default function ProfessionalEditor({
       window.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
-
-  const activeSlide = slides[activeSlideIndex] || slides[0];
-
-  // Handler to update fields of the active slide
-  const updateActiveSlide = (updatedFields: Partial<CarouselSlide>) => {
-    const updated = slides.map((slide, idx) => {
-      if (idx === activeSlideIndex) {
-        return { ...slide, ...updatedFields };
-      }
-      return slide;
-    });
-    onUpdateSlides(updated);
-  };
-
-  // Handler to update a specific element inside the active slide
-  const updateActiveElement = (elementId: string, updatedFields: Partial<CarouselElement>) => {
-    const updatedElements = activeSlide.elements.map((el) => {
-      if (el.id === elementId) {
-        return { ...el, ...updatedFields };
-      }
-      return el;
-    });
-    updateActiveSlide({ elements: updatedElements });
-  };
 
   // Add a new slide to the list
   const handleAddSlide = () => {
