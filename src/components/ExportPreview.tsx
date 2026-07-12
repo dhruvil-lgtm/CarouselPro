@@ -21,9 +21,16 @@ import AppPreviewModal from './AppPreviewModal';
 interface ExportPreviewProps {
   slides: CarouselSlide[];
   onBackToEditor: () => void;
+  isProUser?: boolean;
+  onUpgrade?: () => void;
 }
 
-export default function ExportPreview({ slides, onBackToEditor }: ExportPreviewProps) {
+export default function ExportPreview({ 
+  slides, 
+  onBackToEditor,
+  isProUser = false,
+  onUpgrade
+}: ExportPreviewProps) {
   const [exportFormat, setExportFormat] = useState<'png' | 'pdf' | 'svg'>('png');
   const [aspectRatio, setAspectRatio] = useState<'portrait' | 'square' | 'story'>('portrait');
   const [isExporting, setIsExporting] = useState(false);
@@ -61,7 +68,8 @@ export default function ExportPreview({ slides, onBackToEditor }: ExportPreviewP
       setExportStep(3);
       // Trigger a raw text download as file mockup
       try {
-        const mockupContent = `CarouselPro Export Package\nFormat: ${exportFormat.toUpperCase()}\nAspect Ratio: ${dims.label}\nSlides Count: ${slides.length}\nGenerated on: ${new Date().toISOString()}`;
+        const count = isProUser ? slides.length : Math.min(3, slides.length);
+        const mockupContent = `CarouselPro Export Package\nFormat: ${exportFormat.toUpperCase()}\nAspect Ratio: ${dims.label}\nSlides Count: ${count}${!isProUser ? ' (Free Tier Limit)' : ''}\nGenerated on: ${new Date().toISOString()}`;
         const blob = new Blob([mockupContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -148,7 +156,7 @@ export default function ExportPreview({ slides, onBackToEditor }: ExportPreviewP
                 </div>
               )}
 
-              {slides.map((slide, index) => (
+              {slides.slice(0, isProUser ? slides.length : 3).map((slide, index) => (
                 <div
                   key={slide.id}
                   className="relative shrink-0 select-none shadow-xl border-r border-dashed border-neutral-800 last:border-0 overflow-hidden"
@@ -268,11 +276,35 @@ export default function ExportPreview({ slides, onBackToEditor }: ExportPreviewP
 
                 </div>
               ))}
+
+              {!isProUser && (
+                <div 
+                  onClick={onUpgrade}
+                  className="relative shrink-0 select-none shadow-xl border border-dashed border-neutral-800 rounded-xl bg-neutral-950/40 hover:border-amber-500/40 hover:bg-neutral-900/10 cursor-pointer transition-all flex flex-col items-center justify-center p-6 text-center group"
+                  style={{
+                    width: dims.width,
+                    height: dims.height,
+                  }}
+                >
+                  <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-all">
+                    <Sparkles className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <h4 className="text-sm font-bold text-neutral-300 group-hover:text-amber-400 transition-colors font-sans">Pro Studio Unlock</h4>
+                  <p className="text-xs text-neutral-500 max-w-[200px] leading-relaxed mt-2 font-sans">
+                    Free version only shows 3 slides. Upgrade for unlimited frames and premium high-fidelity exports.
+                  </p>
+                  <span className="mt-4 px-4 py-1.5 bg-amber-500 text-black text-xs font-semibold rounded group-hover:bg-amber-400 transition-all font-sans">
+                    Upgrade Now
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-center mt-4 text-xs font-mono text-neutral-500">
               <span>➔ HOLD SHIFT + SCROLL HORIZONTALLY TO NAVIGATE CHANNELS</span>
-              <span className="text-amber-400">{slides.length} slides total</span>
+              <span className="text-amber-400">
+                {isProUser ? `${slides.length} slides total` : `Showing 3 of ${slides.length} slides (Free version)`}
+              </span>
             </div>
           </div>
 

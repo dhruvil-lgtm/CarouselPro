@@ -32,12 +32,16 @@ interface ProfessionalEditorProps {
   slides: CarouselSlide[];
   onUpdateSlides: (newSlides: CarouselSlide[]) => void;
   onGoToExport: () => void;
+  isProUser?: boolean;
+  onUpgrade?: () => void;
 }
 
 export default function ProfessionalEditor({ 
   slides, 
   onUpdateSlides, 
-  onGoToExport 
+  onGoToExport,
+  isProUser = false,
+  onUpgrade
 }: ProfessionalEditorProps) {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'text' | 'elements' | 'uploads' | 'magic'>('text');
@@ -45,9 +49,15 @@ export default function ProfessionalEditor({
   const [selectedCoreType, setSelectedCoreType] = useState<'title' | 'subtitle' | null>('title');
   const [isProcessingBG, setIsProcessingBG] = useState(false);
   const [gridEnabled, setGridEnabled] = useState(true);
-  const [zoomLevel, setZoomLevel] = useState(100);
+  const [zoomLevel, setZoomLevel] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 640) {
+      return 70;
+    }
+    return 100;
+  });
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [mobileView, setMobileView] = useState<'canvas' | 'tools' | 'properties'>('canvas');
 
   const activeSlide = slides[activeSlideIndex] || slides[0];
 
@@ -75,6 +85,10 @@ export default function ProfessionalEditor({
 
   // Add a new slide to the list
   const handleAddSlide = () => {
+    if (!isProUser && slides.length >= 3) {
+      onUpgrade?.();
+      return;
+    }
     const nextNum = (slides.length + 1).toString().padStart(2, '0');
     const newSlide: CarouselSlide = {
       id: `slide-${Date.now()}`,
@@ -89,6 +103,7 @@ export default function ProfessionalEditor({
     };
     onUpdateSlides([...slides, newSlide]);
     setActiveSlideIndex(slides.length);
+    setMobileView('canvas');
   };
 
   // Delete a slide
@@ -107,6 +122,10 @@ export default function ProfessionalEditor({
 
   // Duplicate the current slide
   const handleDuplicateSlide = () => {
+    if (!isProUser && slides.length >= 3) {
+      onUpgrade?.();
+      return;
+    }
     const duplicated: CarouselSlide = {
       ...activeSlide,
       id: `slide-${Date.now()}`,
@@ -115,6 +134,7 @@ export default function ProfessionalEditor({
     };
     onUpdateSlides([...slides, duplicated]);
     setActiveSlideIndex(slides.length);
+    setMobileView('canvas');
   };
 
   // Add predefined text blocks
@@ -136,6 +156,7 @@ export default function ProfessionalEditor({
     });
     setSelectedElementId(newEl.id);
     setSelectedCoreType(null);
+    setMobileView('canvas');
   };
 
   // Add premium sticker shapes
@@ -155,6 +176,7 @@ export default function ProfessionalEditor({
     });
     setSelectedElementId(newEl.id);
     setSelectedCoreType(null);
+    setMobileView('canvas');
   };
 
   // Handle uploading custom hotlinked background image
@@ -162,6 +184,7 @@ export default function ProfessionalEditor({
     if (!url) return;
     updateActiveSlide({ bgImage: url });
     setCustomImageUrl('');
+    setMobileView('canvas');
   };
 
   // Simulate AI Background Remover
@@ -176,6 +199,7 @@ export default function ProfessionalEditor({
         // Ensure a transparent isolated mockup is present
         bgRemovedImage: activeSlide.bgRemovedImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAB7cv0sTv6EB6SVjKMqXhrLr1yfu2dAO5LcYDZbGXaSBqsICFvc1C7A3YqKz7If5fGzSDrE0eR7BR7Vou9Im2871kuN-emZfNzM-9roDmqK3RCfKGvPY0OYcPWLiPjBf87fTdZOr7NraPMSWhgwkfRBnx6eOhut1E4PZ4j7oAunLtgn3vpDJhiiPwhbc-0YWUpDCSn6_iEo49l4MDgxcX1-iXUipWirIvQbIGQ3iYommecgso-dpPzAA'
       });
+      setMobileView('canvas');
     }, 1800);
   };
 
@@ -193,22 +217,22 @@ export default function ProfessionalEditor({
     <div className="min-h-screen bg-[#0A0A0A] text-neutral-200 flex flex-col pt-16">
       
       {/* Editorial Control Header */}
-      <div className="bg-[#121212] border-b border-neutral-900 px-6 py-3 flex justify-between items-center shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded text-xs font-mono text-amber-400 uppercase tracking-wider">
+      <div className="bg-[#121212] border-b border-neutral-900 px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap gap-2 justify-between items-center shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden xs:inline-flex bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-mono text-amber-400 uppercase tracking-wider">
             PROJECT_ACTIVE
           </div>
-          <h2 className="text-sm font-bold text-white font-sans hidden sm:block">
-            Seamless Canvas - Page {activeSlide.slideNumber} of {slides.length.toString().padStart(2, '0')}
+          <h2 className="text-xs sm:text-sm font-bold text-white font-sans">
+            Page {activeSlide.slideNumber} of {slides.length.toString().padStart(2, '0')}
           </h2>
         </div>
 
         {/* Toolbar shortcuts */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Toggle Grid */}
           <button
             onClick={() => setGridEnabled(!gridEnabled)}
-            className={`p-1.5 rounded text-xs font-mono flex items-center gap-1.5 border transition-all cursor-pointer ${
+            className={`p-1.5 rounded text-xs font-mono flex items-center gap-1 sm:gap-1.5 border transition-all cursor-pointer ${
               gridEnabled 
                 ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' 
                 : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-white'
@@ -216,20 +240,20 @@ export default function ProfessionalEditor({
             title="Toggle alignment grid lines"
           >
             <Grid3X3 className="w-4 h-4" />
-            <span className="hidden sm:inline">Grid System</span>
+            <span className="hidden sm:inline">Grid</span>
           </button>
 
           {/* Zoom controls */}
-          <div className="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-xs text-neutral-400">
-            <button onClick={() => setZoomLevel(Math.max(50, zoomLevel - 10))} className="hover:text-white cursor-pointer px-1">-</button>
-            <span className="font-mono min-w-[35px] text-center">{zoomLevel}%</span>
+          <div className="flex items-center gap-1 bg-neutral-900 border border-neutral-800 rounded px-1.5 py-1 text-xs text-neutral-400">
+            <button onClick={() => setZoomLevel(Math.max(30, zoomLevel - 10))} className="hover:text-white cursor-pointer px-1">-</button>
+            <span className="font-mono min-w-[30px] text-center">{zoomLevel}%</span>
             <button onClick={() => setZoomLevel(Math.min(150, zoomLevel + 10))} className="hover:text-white cursor-pointer px-1">+</button>
           </div>
 
           {/* App Feed Live Preview Button */}
           <button
             onClick={() => setIsPreviewModalOpen(true)}
-            className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 font-semibold text-xs rounded flex items-center gap-1.5 transition-all cursor-pointer ml-2"
+            className="px-2 py-1.5 sm:px-3.5 sm:py-1.5 bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 font-semibold text-xs rounded flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer"
             title="Preview how it looks on specific social apps"
           >
             <Eye className="w-4 h-4 text-amber-400" />
@@ -239,17 +263,53 @@ export default function ProfessionalEditor({
           {/* Go to Export CTA */}
           <button
             onClick={onGoToExport}
-            className="px-4 py-1.5 bg-amber-500 text-black font-semibold text-xs rounded hover:bg-amber-400 flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/5 cursor-pointer ml-2"
+            className="px-2.5 py-1.5 sm:px-4 sm:py-1.5 bg-amber-500 text-black font-semibold text-xs rounded hover:bg-amber-400 flex items-center gap-1 sm:gap-1.5 transition-all shadow-md shadow-amber-500/5 cursor-pointer"
           >
-            Preview & Export <Download className="w-3.5 h-3.5" />
+            Export <Download className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      {/* Mobile view switcher segmented control */}
+      <div className="lg:hidden bg-neutral-950 border-b border-neutral-900 p-2 flex justify-center shrink-0">
+        <div className="bg-[#121212] p-1 rounded-lg border border-neutral-800/60 flex gap-1 w-full max-w-md">
+          <button
+            onClick={() => setMobileView('tools')}
+            className={`flex-1 py-1.5 rounded text-xs font-mono font-medium transition-all cursor-pointer ${
+              mobileView === 'tools'
+                ? 'bg-amber-500 text-black shadow font-bold'
+                : 'text-neutral-400 hover:text-white'
+            }`}
+          >
+            🛠️ Tools
+          </button>
+          <button
+            onClick={() => setMobileView('canvas')}
+            className={`flex-1 py-1.5 rounded text-xs font-mono font-medium transition-all cursor-pointer ${
+              mobileView === 'canvas'
+                ? 'bg-amber-500 text-black shadow font-bold'
+                : 'text-neutral-400 hover:text-white'
+            }`}
+          >
+            🎨 Canvas
+          </button>
+          <button
+            onClick={() => setMobileView('properties')}
+            className={`flex-1 py-1.5 rounded text-xs font-mono font-medium transition-all cursor-pointer ${
+              mobileView === 'properties'
+                ? 'bg-amber-500 text-black shadow font-bold'
+                : 'text-neutral-400 hover:text-white'
+            }`}
+          >
+            ⚙️ Properties
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         
         {/* LEFT SIDEBAR: Tools Editor Suite */}
-        <div className="w-[320px] bg-[#121212] border-r border-neutral-900/80 flex flex-col overflow-hidden shrink-0">
+        <div className={`w-full lg:w-[320px] bg-[#121212] border-r border-neutral-900/80 flex-col overflow-hidden shrink-0 ${mobileView === 'tools' ? 'flex flex-1' : 'hidden lg:flex'}`}>
           {/* Vertical mini tabs header */}
           <div className="flex border-b border-neutral-900 text-xs font-mono">
             {[
@@ -497,9 +557,9 @@ export default function ProfessionalEditor({
         </div>
 
         {/* CENTER STAGE: Canvas Workspace */}
-        <div className="flex-1 bg-[#0A0A0A] flex flex-col overflow-hidden relative">
+        <div className={`flex-1 bg-[#0A0A0A] flex flex-col overflow-hidden relative ${mobileView === 'canvas' ? 'flex' : 'hidden lg:flex'}`}>
           
-          <div className="flex-1 overflow-auto flex items-center justify-center p-8 relative">
+          <div className="flex-1 overflow-auto flex items-center justify-center p-4 sm:p-8 relative">
             
             {/* Grid Backdrop effect */}
             {gridEnabled && (
@@ -668,7 +728,14 @@ export default function ProfessionalEditor({
           {/* BOTTOM TIMELINE SLIDES TRAY: Carousel Sequencer */}
           <div className="bg-[#121212] border-t border-neutral-900 p-4 shrink-0">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Slide Sequence Flow</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Slide Sequence Flow</span>
+                {!isProUser && (
+                  <span className="text-[9px] bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-mono">
+                    Free Tier: 3 Slides Max
+                  </span>
+                )}
+              </div>
               <div className="flex gap-1">
                 <button
                   onClick={handleAddSlide}
@@ -750,13 +817,26 @@ export default function ProfessionalEditor({
                   </div>
                 );
               })}
+
+              {!isProUser && (
+                <div 
+                  onClick={onUpgrade}
+                  className="relative w-28 aspect-[4/5] rounded overflow-hidden bg-neutral-950/40 border border-dashed border-neutral-800 hover:border-amber-500/40 shrink-0 cursor-pointer transition-all flex flex-col items-center justify-center p-2 text-center group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-all">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <span className="text-[9px] font-bold text-neutral-400 group-hover:text-amber-400 transition-colors">Upgrade to Pro</span>
+                  <span className="text-[7.5px] text-neutral-500 leading-tight mt-1">Free version only shows 3 slides</span>
+                </div>
+              )}
             </div>
           </div>
 
         </div>
 
         {/* RIGHT SIDEBAR: Layer Properties Editor */}
-        <div className="w-[300px] bg-[#121212] border-l border-neutral-900/80 flex flex-col overflow-y-auto p-5 space-y-6 shrink-0">
+        <div className={`w-full lg:w-[300px] bg-[#121212] border-l border-neutral-900/80 flex-col overflow-y-auto p-5 space-y-6 shrink-0 ${mobileView === 'properties' ? 'flex flex-1' : 'hidden lg:flex'}`}>
           <div>
             <h3 className="text-xs font-mono text-neutral-400 uppercase tracking-widest mb-1.5">Properties Manager</h3>
             <p className="text-neutral-500 text-[11px]">Refine alignment, typography parameters, colors, and opacity layers.</p>
